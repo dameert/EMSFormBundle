@@ -15,10 +15,29 @@ class IsBelgiumPhoneNumberValidatorTest extends ConstraintValidatorTestCase
         return new IsBelgiumPhoneNumberValidator();
     }
 
-    public function testInvalidPhoneNumber()
+    /**
+     * @dataProvider getInvalidPhoneNumbers
+     */
+    public function testInvalidPhoneNumbers(string $phoneNumber)
     {
-        $this->validator->validate('+123456789', new IsBelgiumPhoneNumber());
-        $this->buildViolation('The phone number "+123456789" has an invalid format.');
+        $constraint = new IsBelgiumPhoneNumber([
+            'message' => 'myMessage',
+        ]);
+
+        $this->validator->validate($phoneNumber, $constraint);
+
+        $this->buildViolation('myMessage')
+            ->setParameter('{{string}}', $phoneNumber)
+            ->assertRaised();
+    }
+
+    public function getInvalidPhoneNumbers()
+    {
+        return [
+            ['+123456789'],
+            ['example@'],
+            ['+123456789102'],
+        ];
     }
 
     public function testValidPhoneNumber()
